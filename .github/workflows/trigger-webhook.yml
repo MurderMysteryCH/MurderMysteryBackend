@@ -1,7 +1,10 @@
 name: Trigger Webhook
 
 on:
-  workflow_dispatch:  # Allows manual triggering from the Actions tab
+  push:
+    branches:
+      - main
+  workflow_dispatch: 
 
 jobs:
   trigger-webhook:
