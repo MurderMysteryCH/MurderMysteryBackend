@@ -1,0 +1,13 @@
+name: Trigger Webhook
+
+on:
+  workflow_dispatch:  # Allows manual triggering from the Actions tab
+
+jobs:
+  trigger-webhook:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Call webhook
+        run: |
+          curl -i -X POST https://hooks.harrison-martin.com/api/stacks/webhooks/b5feaa31-9a1d-4a73-9c9e-cff45ba8e9a8
