@@ -1,5 +1,6 @@
-from sqlmodel import SQLModel, Field
 import uuid
+
+from sqlmodel import SQLModel, Field
 
 class BasePlayer(SQLModel):
   name: str = Field(max_length=20)
