@@ -1,4 +1,23 @@
 services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - web
+
   db:
     image: postgres:16
     container_name: postgres_db
@@ -11,13 +30,15 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - web
 
   backend:
     build:
       context: ./server
     container_name: backend_app
     depends_on:
-      - db
+      - dbs
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -27,6 +48,17 @@ services:
       - "5001:3001"
     volumes:
       - ./server:/app
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backend.rule=Host(`backend.localhost`)
+      - traefik.http.routers.backend.entrypoints=web
+      - traefik.http.services.backend.loadbalancer.server.port=3001
+    networks:
+      - web
 
 volumes:
   postgres_data:
+
+networks:
+  web:
+    name: traefik_web
